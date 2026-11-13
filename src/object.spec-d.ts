@@ -1,4 +1,4 @@
-import type { KeysOfType, Mutable, PartialBy, Prettify, RequireAtLeastOne, RequiredBy, RequireExactlyOne, ValueOf } from './index.ts';
+import type { KeysOfType, Mutable, PartialBy, Prettify, RequireAtLeastOne, RequiredBy, RequireExactlyOne, SplitKeys, ValueOf } from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface User {
@@ -187,4 +187,26 @@ interface Contact {
   accept<Single>({ name: 'A', email: 'a@b.c', phone: '01' });
   // @ts-expect-error: none of the keys is set
   accept<Single>({ name: 'A' });
+}
+
+// SplitKeys: should give one object type per key, with `readonly` and `?` kept
+{
+  // GIVEN
+  type Patch = { readonly name: string; age?: number };
+
+  // WHEN
+  type Change = SplitKeys<Patch>;
+
+  // THEN
+  assertTrue<Equals<Change, { readonly name: string } | { age?: number }>>();
+}
+
+// SplitKeys: should split an intersection of one-key types back into a union
+{
+  // GIVEN
+  type Intersection = { a: 1 } & { b: 2 };
+
+  // WHEN / THEN
+  assertTrue<Equals<SplitKeys<Intersection>, { a: 1 } | { b: 2 }>>();
+  assertTrue<Equals<SplitKeys<{}>, never>>();
 }

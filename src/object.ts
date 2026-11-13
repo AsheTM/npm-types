@@ -136,3 +136,18 @@ export type RequireAtLeastOne<T, K extends keyof T = keyof T> = {
 export type RequireExactlyOne<T, K extends keyof T = keyof T> = {
   [P in K]-?: Prettify<Omit<T, K> & Required<Pick<T, P>> & { [Q in Exclude<K, P>]?: never }>;
 }[K];
+
+/**
+ * A union with one object type per key of `T`. `readonly` and `?` are kept.
+ *
+ * TypeScript can't split an intersection back into its members, so
+ * `SplitKeys<A & B>` gives `A | B` only when `A` and `B` have one key each.
+ *
+ * @example
+ * ```ts
+ * type Change = SplitKeys<{ name: string; age?: number }>; // { name: string } | { age?: number }
+ * ```
+ */
+export type SplitKeys<T> = {
+  [K in keyof T]-?: Prettify<Pick<T, K>>;
+}[keyof T];
