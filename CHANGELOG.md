@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-11-13
+
+### Added
+
+- `LiteralUnion<T, Base>`, `Merge<A, B>`, `StrictOmit<T, K>` ([#33](https://github.com/AsheTM/npm-types/issues/33)).
+- `OptionalKeys<T>`, `RequiredKeys<T>`, `Entries<T>` ([#34](https://github.com/AsheTM/npm-types/issues/34)).
+- `Tuple<T, N>` (TypeScript 4.1+) ([#35](https://github.com/AsheTM/npm-types/issues/35)).
+- CI on GitHub Actions: type checks and TypeScript 3.7 – latest compat on every PR ([#29](https://github.com/AsheTM/npm-types/issues/29)).
+- README badges ([#31](https://github.com/AsheTM/npm-types/issues/31)).
+
 ## [1.2.0] - 2026-11-13
 
 ### Added
