@@ -177,3 +177,48 @@ export type Merge<A, B> = Prettify<Omit<A, keyof B> & B>;
  * ```
  */
 export type StrictOmit<T, K extends keyof T> = Omit<T, K>;
+
+/**
+ * The keys of `T` marked `?`.
+ *
+ * @example
+ * ```ts
+ * type Keys = OptionalKeys<{ id: number; name?: string }>; // 'name'
+ * ```
+ */
+export type OptionalKeys<T> = {
+  [K in keyof T]-?: Record<never, never> extends Pick<T, K> ? K : never;
+}[keyof T];
+
+/**
+ * The keys of `T` not marked `?` (a value that can be `undefined` is still required).
+ *
+ * @example
+ * ```ts
+ * type Keys = RequiredKeys<{ id: number; name?: string }>; // 'id'
+ * ```
+ */
+export type RequiredKeys<T> = {
+  [K in keyof T]-?: Record<never, never> extends Pick<T, K> ? never : K;
+}[keyof T];
+
+/**
+ * The `[key, value]` pairs of the object `T`, to type `Object.entries`. String keys only,
+ * like `Object.entries`.
+ *
+ * @example
+ * ```ts
+ * interface User {
+ *   id: number;
+ *   name: string;
+ * }
+ *
+ * declare const user: User;
+ * const entries = Object.entries(user) as Entries<User>; // (['id', number] | ['name', string])[]
+ * ```
+ */
+export type Entries<T> = Array<
+  {
+    [K in keyof T]-?: K extends string ? [K, T[K]] : never;
+  }[keyof T]
+>;

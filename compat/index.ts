@@ -7,6 +7,7 @@ import {
   DeepMutable,
   DeepReadonly,
   DeepRequired,
+  Entries,
   JsonValue,
   KeysOfType,
   LiteralUnion,
@@ -15,10 +16,12 @@ import {
   Mutable,
   NonEmptyArray,
   Nullable,
+  OptionalKeys,
   PartialBy,
   Prettify,
   RequireAtLeastOne,
   RequiredBy,
+  RequiredKeys,
   RequireExactlyOne,
   SplitKeys,
   StrictOmit,
@@ -91,4 +94,8 @@ export const checks: [
   Equals<Assignable<1, LiteralUnion<'sm' | 'md'>>, false>,
   Equals<Merge<{ a: 1; b: 2 }, { b: 'x' }>, { a: 1; b: 'x' }>,
   Equals<StrictOmit<User, 'id'>, { name: string; nickname?: string }>,
-] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+  // OptionalKeys, RequiredKeys, Entries
+  Equals<OptionalKeys<User>, 'nickname'>,
+  Equals<RequiredKeys<User>, 'id' | 'name'>,
+  Equals<Entries<{ a: 1; b: 'x' }>, (['a', 1] | ['b', 'x'])[]>,
+] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];

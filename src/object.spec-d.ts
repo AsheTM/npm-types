@@ -1,11 +1,14 @@
 import type {
+  Entries,
   KeysOfType,
   Merge,
   Mutable,
+  OptionalKeys,
   PartialBy,
   Prettify,
   RequireAtLeastOne,
   RequiredBy,
+  RequiredKeys,
   RequireExactlyOne,
   SplitKeys,
   StrictOmit,
@@ -243,4 +246,30 @@ interface Contact {
   assertTrue<Equals<StrictOmit<User, 'greet' | 'age'>, { readonly id: number; name: string; nickname?: string }>>();
   // @ts-expect-error: `idd` is not a key of User
   type Typo = StrictOmit<User, 'idd'>;
+}
+
+// OptionalKeys / RequiredKeys: should split the keys on `?`
+{
+  // GIVEN / WHEN / THEN
+  assertTrue<Equals<OptionalKeys<User>, 'nickname'>>();
+  assertTrue<Equals<RequiredKeys<User>, 'id' | 'name' | 'age' | 'greet'>>();
+  assertTrue<Equals<OptionalKeys<{ a: string | undefined }>, never>>();
+  assertTrue<Equals<RequiredKeys<{ a: string | undefined }>, 'a'>>();
+  assertTrue<Equals<OptionalKeys<{}>, never>>();
+}
+
+// Entries: should give the [key, value] pairs of string keys
+{
+  // GIVEN
+  const tag = Symbol('tag');
+  type Item = { id: number; label?: string; 0: boolean; [tag]: true };
+
+  // WHEN
+  type ItemEntries = Entries<Item>;
+
+  // THEN
+  assertTrue<Equals<ItemEntries, (['id', number] | ['label', string | undefined])[]>>();
+  accept<ItemEntries>([['id', 1], ['label', 'a']]);
+  // @ts-expect-error: wrong value type for `id`
+  accept<ItemEntries>([['id', 'a']]);
 }
