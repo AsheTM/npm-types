@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - Unreleased
+
+### Added
+
+- `Paths<T>`, `PathValue<T, P>` (TypeScript 4.1+) ([#23](https://github.com/AsheTM/npm-types/issues/23)).
+- `CamelCase<S>`, `KebabCase<S>`, `SnakeCase<S>` (TypeScript 4.1+) ([#24](https://github.com/AsheTM/npm-types/issues/24)).
+- `typesVersions`: TypeScript 3.7 – 4.0 keeps the 1.1 types, TypeScript 4.1+ gets every type ([#22](https://github.com/AsheTM/npm-types/issues/22)).
+
 ## [1.1.0] - 2026-11-13
 
 ### Added

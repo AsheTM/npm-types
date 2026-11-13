@@ -20,3 +20,6 @@ Thumbs.db
 
 # Others
 *.git-credentials
+
+# compat checks (linked package)
+/compat/node_modules
