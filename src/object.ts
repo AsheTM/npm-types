@@ -46,3 +46,108 @@ export type KeysOfType<T, V> = {
 export type Mutable<T> = {
   -readonly [K in keyof T]: T[K];
 };
+
+/**
+ * `T` with its intersections flattened into one object type, so hovers are readable.
+ * `readonly` and `?` are kept.
+ *
+ * @example
+ * ```ts
+ * type User = Prettify<{ id: number } & { name?: string }>; // { id: number; name?: string }
+ * ```
+ */
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+};
+
+/**
+ * `T` with only the keys `K` optional.
+ *
+ * @example
+ * ```ts
+ * interface User {
+ *   id: number;
+ *   name: string;
+ *   email: string;
+ * }
+ *
+ * type NewUser = PartialBy<User, 'id'>; // { name: string; email: string; id?: number }
+ * ```
+ */
+export type PartialBy<T, K extends keyof T> = Prettify<Omit<T, K> & Partial<Pick<T, K>>>;
+
+/**
+ * `T` with only the keys `K` required.
+ *
+ * @example
+ * ```ts
+ * interface Options {
+ *   url?: string;
+ *   timeout?: number;
+ * }
+ *
+ * type UrlOptions = RequiredBy<Options, 'url'>; // { timeout?: number; url: string }
+ * ```
+ */
+export type RequiredBy<T, K extends keyof T> = Prettify<Omit<T, K> & Required<Pick<T, K>>>;
+
+/**
+ * `T` where at least one of the keys `K` (all keys by default) must be set.
+ * The other keys of `K` stay optional; keys outside `K` are kept as they are.
+ *
+ * @example
+ * ```ts
+ * interface Contact {
+ *   name: string;
+ *   email?: string;
+ *   phone?: string;
+ * }
+ *
+ * type ReachableContact = RequireAtLeastOne<Contact, 'email' | 'phone'>;
+ *
+ * const a: ReachableContact = { name: 'A', email: 'a@b.c' };
+ * const b: ReachableContact = { name: 'B', email: 'b@c.d', phone: '01' };
+ * const c: ReachableContact = { name: 'C' }; // error
+ * ```
+ */
+export type RequireAtLeastOne<T, K extends keyof T = keyof T> = {
+  [P in K]-?: Prettify<Omit<T, K> & Required<Pick<T, P>> & Partial<Pick<T, Exclude<K, P>>>>;
+}[K];
+
+/**
+ * `T` where exactly one of the keys `K` (all keys by default) must be set; the other keys of `K`
+ * are not allowed. Keys outside `K` are kept as they are.
+ *
+ * @example
+ * ```ts
+ * interface Payment {
+ *   amount: number;
+ *   card?: string;
+ *   iban?: string;
+ * }
+ *
+ * type SinglePayment = RequireExactlyOne<Payment, 'card' | 'iban'>;
+ *
+ * const a: SinglePayment = { amount: 1, card: '4242' };
+ * const b: SinglePayment = { amount: 1, card: '4242', iban: 'FR76' }; // error
+ * const c: SinglePayment = { amount: 1 }; // error
+ * ```
+ */
+export type RequireExactlyOne<T, K extends keyof T = keyof T> = {
+  [P in K]-?: Prettify<Omit<T, K> & Required<Pick<T, P>> & { [Q in Exclude<K, P>]?: never }>;
+}[K];
+
+/**
+ * A union with one object type per key of `T`. `readonly` and `?` are kept.
+ *
+ * TypeScript can't split an intersection back into its members, so
+ * `SplitKeys<A & B>` gives `A | B` only when `A` and `B` have one key each.
+ *
+ * @example
+ * ```ts
+ * type Change = SplitKeys<{ name: string; age?: number }>; // { name: string } | { age?: number }
+ * ```
+ */
+export type SplitKeys<T> = {
+  [K in keyof T]-?: Prettify<Pick<T, K>>;
+}[keyof T];

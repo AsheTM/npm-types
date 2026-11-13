@@ -1,4 +1,4 @@
-import type { KeysOfType, Mutable, ValueOf } from './index.ts';
+import type { KeysOfType, Mutable, PartialBy, Prettify, RequireAtLeastOne, RequiredBy, RequireExactlyOne, SplitKeys, ValueOf } from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface User {
@@ -93,4 +93,120 @@ interface User {
 
   // THEN
   assertTrue<Equals<MutableBox, { inner: { readonly value: number } }>>();
+}
+
+// Prettify: should flatten an intersection and keep `readonly` and `?`
+{
+  // GIVEN
+  type Intersection = { readonly id: number } & { name?: string };
+
+  // WHEN
+  type Flat = Prettify<Intersection>;
+
+  // THEN
+  assertTrue<Equals<Flat, { readonly id: number; name?: string }>>();
+}
+
+// PartialBy: should make only the given keys optional
+{
+  // GIVEN
+  interface Account {
+    id: number;
+    name: string;
+    readonly email: string;
+  }
+
+  // WHEN
+  type NewAccount = PartialBy<Account, 'id' | 'email'>;
+
+  // THEN
+  assertTrue<Equals<NewAccount, { name: string; id?: number; readonly email?: string }>>();
+  accept<NewAccount>({ name: 'A' });
+  // @ts-expect-error: `name` is still required
+  accept<NewAccount>({ id: 1 });
+}
+
+// RequiredBy: should make only the given keys required
+{
+  // GIVEN
+  interface Options {
+    url?: string;
+    timeout?: number;
+  }
+
+  // WHEN
+  type UrlOptions = RequiredBy<Options, 'url'>;
+
+  // THEN
+  assertTrue<Equals<UrlOptions, { timeout?: number; url: string }>>();
+  // @ts-expect-error: `url` is required
+  accept<UrlOptions>({ timeout: 1 });
+}
+
+interface Contact {
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
+// RequireAtLeastOne: should need at least one of the given keys
+{
+  // GIVEN
+  type Reachable = RequireAtLeastOne<Contact, 'email' | 'phone'>;
+
+  // WHEN / THEN
+  accept<Reachable>({ name: 'A', email: 'a@b.c' });
+  accept<Reachable>({ name: 'A', phone: '01' });
+  accept<Reachable>({ name: 'A', email: 'a@b.c', phone: '01' });
+  // @ts-expect-error: none of the keys is set
+  accept<Reachable>({ name: 'A' });
+  // @ts-expect-error: keys outside the list are kept as they are
+  accept<Reachable>({ email: 'a@b.c' });
+}
+
+// RequireAtLeastOne: should use every key by default
+{
+  // GIVEN
+  type Filter = RequireAtLeastOne<{ id?: number; name?: string }>;
+
+  // WHEN / THEN
+  assertTrue<Equals<Filter, { id: number; name?: string } | { name: string; id?: number }>>();
+  // @ts-expect-error: an empty object is not allowed
+  accept<Filter>({});
+}
+
+// RequireExactlyOne: should need exactly one of the given keys
+{
+  // GIVEN
+  type Single = RequireExactlyOne<Contact, 'email' | 'phone'>;
+
+  // WHEN / THEN
+  accept<Single>({ name: 'A', email: 'a@b.c' });
+  accept<Single>({ name: 'A', phone: '01' });
+  // @ts-expect-error: two keys are set
+  accept<Single>({ name: 'A', email: 'a@b.c', phone: '01' });
+  // @ts-expect-error: none of the keys is set
+  accept<Single>({ name: 'A' });
+}
+
+// SplitKeys: should give one object type per key, with `readonly` and `?` kept
+{
+  // GIVEN
+  type Patch = { readonly name: string; age?: number };
+
+  // WHEN
+  type Change = SplitKeys<Patch>;
+
+  // THEN
+  assertTrue<Equals<Change, { readonly name: string } | { age?: number }>>();
+}
+
+// SplitKeys: should split an intersection of one-key types back into a union
+{
+  // GIVEN
+  type Intersection = { a: 1 } & { b: 2 };
+
+  // WHEN / THEN
+  assertTrue<Equals<SplitKeys<Intersection>, { a: 1 } | { b: 2 }>>();
+  assertTrue<Equals<SplitKeys<{}>, never>>();
 }
