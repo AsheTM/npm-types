@@ -56,6 +56,13 @@
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "<4.1": {
+      "*": [
+        "dist/legacy.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
