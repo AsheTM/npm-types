@@ -9,7 +9,9 @@ import {
   DeepRequired,
   JsonValue,
   KeysOfType,
+  LiteralUnion,
   Maybe,
+  Merge,
   Mutable,
   NonEmptyArray,
   Nullable,
@@ -19,6 +21,7 @@ import {
   RequiredBy,
   RequireExactlyOne,
   SplitKeys,
+  StrictOmit,
   UnionToIntersection,
   ValueOf,
 } from '@ashetm/types';
@@ -83,4 +86,9 @@ export const checks: [
   // UnionToIntersection, SplitKeys
   Equals<UnionToIntersection<{ a: 1 } | { b: 2 }>, { a: 1 } & { b: 2 }>,
   Equals<SplitKeys<{ a: 1; b?: 2 }>, { a: 1 } | { b?: 2 }>,
-] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+  // LiteralUnion, Merge, StrictOmit
+  Assignable<'xl', LiteralUnion<'sm' | 'md'>>,
+  Equals<Assignable<1, LiteralUnion<'sm' | 'md'>>, false>,
+  Equals<Merge<{ a: 1; b: 2 }, { b: 'x' }>, { a: 1; b: 'x' }>,
+  Equals<StrictOmit<User, 'id'>, { name: string; nickname?: string }>,
+] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];

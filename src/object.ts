@@ -151,3 +151,29 @@ export type RequireExactlyOne<T, K extends keyof T = keyof T> = {
 export type SplitKeys<T> = {
   [K in keyof T]-?: Prettify<Pick<T, K>>;
 }[keyof T];
+
+/**
+ * `A` with the properties of `B` on top: `B` wins on shared keys.
+ *
+ * @example
+ * ```ts
+ * type Row = Merge<{ id: number; name: string }, { id: string }>; // { name: string; id: string }
+ * ```
+ */
+export type Merge<A, B> = Prettify<Omit<A, keyof B> & B>;
+
+/**
+ * `Omit` that only accepts keys of `T`, so a typo or a renamed key is an error.
+ *
+ * @example
+ * ```ts
+ * interface User {
+ *   id: number;
+ *   name: string;
+ * }
+ *
+ * type Draft = StrictOmit<User, 'id'>; // { name: string }
+ * type Typo = StrictOmit<User, 'idd'>; // error
+ * ```
+ */
+export type StrictOmit<T, K extends keyof T> = Omit<T, K>;

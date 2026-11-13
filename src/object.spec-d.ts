@@ -1,4 +1,16 @@
-import type { KeysOfType, Mutable, PartialBy, Prettify, RequireAtLeastOne, RequiredBy, RequireExactlyOne, SplitKeys, ValueOf } from './index.ts';
+import type {
+  KeysOfType,
+  Merge,
+  Mutable,
+  PartialBy,
+  Prettify,
+  RequireAtLeastOne,
+  RequiredBy,
+  RequireExactlyOne,
+  SplitKeys,
+  StrictOmit,
+  ValueOf,
+} from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface User {
@@ -209,4 +221,26 @@ interface Contact {
   // WHEN / THEN
   assertTrue<Equals<SplitKeys<Intersection>, { a: 1 } | { b: 2 }>>();
   assertTrue<Equals<SplitKeys<{}>, never>>();
+}
+
+// Merge: should add the properties of B, B winning on shared keys
+{
+  // GIVEN
+  type Base = { readonly id: number; name: string; tags?: string[] };
+  type Patch = { id: string; active: boolean };
+
+  // WHEN
+  type Row = Merge<Base, Patch>;
+
+  // THEN
+  assertTrue<Equals<Row, { name: string; tags?: string[]; id: string; active: boolean }>>();
+  assertTrue<Equals<Merge<Base, {}>, Base>>();
+}
+
+// StrictOmit: should omit keys of T and reject unknown keys
+{
+  // GIVEN / WHEN / THEN
+  assertTrue<Equals<StrictOmit<User, 'greet' | 'age'>, { readonly id: number; name: string; nickname?: string }>>();
+  // @ts-expect-error: `idd` is not a key of User
+  type Typo = StrictOmit<User, 'idd'>;
 }
