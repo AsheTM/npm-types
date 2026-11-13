@@ -1,5 +1,5 @@
-// Checks the built `dist/*.d.ts` with old TypeScript versions (down to 3.7, the `peerDependencies` floor).
-// Only TypeScript 3.7 syntax here: no `import type`, no `@ts-expect-error` (3.8 / 3.9).
+// Checks the published types like a real install (`@ashetm/types` is linked to the package root) on old and new TypeScript.
+// These are the TypeScript 3.7+ types (`dist/legacy.d.ts`). Only TypeScript 3.7 syntax here: no `import type`, no `@ts-expect-error`.
 import {
   ArrayItem,
   Brand,
@@ -21,7 +21,7 @@ import {
   SplitKeys,
   UnionToIntersection,
   ValueOf,
-} from '../dist/index.js';
+} from '@ashetm/types';
 
 type Equals<A, B> = (<X>() => X extends A ? 1 : 2) extends <X>() => X extends B ? 1 : 2 ? true : false;
 type Assignable<A, B> = [A] extends [B] ? true : false;

@@ -1,8 +1,18 @@
 # @ashetm/types
 
-``@ashetm/types`` is a small, dependency-free library of TypeScript utility types: nullability, arrays, objects, deep partial / readonly and branded types.
+``@ashetm/types`` is a small, dependency-free library of TypeScript utility types: nullability, arrays, objects, deep partial / readonly, JSON, dot paths, string cases and branded types.
 
 It is **types only**: it adds nothing to your bundle. It works with any project (Angular, React, Node, ...) on **TypeScript 3.7 or later**.
+
+## TypeScript support
+
+| TypeScript | Angular     | Types                                                                                     |
+|------------|-------------|-------------------------------------------------------------------------------------------|
+| 3.7 – 4.0  | 9 – 11.0    | all except [Paths](#paths) and [String cases](#string-cases)                              |
+| 4.1 – 4.4  | 11.1 – 13.0 | all; string cases up to about 40 characters, `Paths` of self-referencing types up to 9 segments |
+| 4.5+       | 13.1+       | all                                                                                       |
+
+Your TypeScript version picks the right types by itself (`typesVersions`): nothing to configure.
 
 ## Install
 
@@ -136,6 +146,52 @@ const invalid: JsonValue = { at: new Date() }; // error
 
 An `interface` has no index signature, so a value typed with one is not assignable to `JsonObject`: use a `type` instead.
 
+### Paths
+
+Needs TypeScript 4.1+.
+
+| Type              | Is                                                                                         |
+|-------------------|--------------------------------------------------------------------------------------------|
+| `Paths<T>`        | every dot path of `T` (string keys; arrays and tuples use `${number}`).                    |
+| `PathValue<T, P>` | the type at the dot path `P`: with `undefined` when a step is optional, `never` when the path does not exist. |
+
+```ts
+interface Settings {
+  theme: { color: string };
+  owner?: { name: string };
+  tags: string[];
+}
+
+type Path = Paths<Settings>; // 'theme' | 'theme.color' | 'owner' | 'owner.name' | 'tags' | `tags.${number}`
+type Owner = PathValue<Settings, 'owner.name'>; // string | undefined
+
+declare const settings: Settings;
+declare function get<T, P extends Paths<T>>(value: T, path: P): PathValue<T, P>;
+get(settings, 'theme.color'); // string
+get(settings, 'theme.size'); // error
+```
+
+Optional values are followed; `Date`, functions, `Map`, `Set` and other built-ins are not. Self-referencing types (`children: Tree[]`) stop at 9 segments.
+
+### String cases
+
+Needs TypeScript 4.1+.
+
+| Type           | Is                                                                                       |
+|----------------|------------------------------------------------------------------------------------------|
+| `CamelCase<S>` | `S` in camelCase: words split on `_`, `-` and spaces; all-uppercase words lowercased first. |
+| `KebabCase<S>` | `S` in kebab-case: words split on `_`, `-`, spaces and lowercase → uppercase changes.    |
+| `SnakeCase<S>` | `S` in snake_case: same words as `KebabCase`.                                            |
+
+```ts
+type A = CamelCase<'user_id'>; // 'userId'
+type B = CamelCase<'USER_ID'>; // 'userId'
+type C = KebabCase<'userID'>; // 'user-id'
+type D = SnakeCase<'user-name id'>; // 'user_name_id'
+```
+
+`string` stays `string`, and a union is converted member by member.
+
 ### Branded types
 
 `Brand<T, Name>` tags `T` with a name, so two types with the same shape can't be mixed up. A branded value is still a `T`; a plain `T` must be cast to get the brand.
@@ -162,7 +218,8 @@ npm run test:compat
 ```
 
 - `npm test` type-checks the type tests (`src/*.spec-d.ts`): what must compile, and `// @ts-expect-error` for what must not. Nothing runs.
-- `npm run test:compat` builds, then checks `dist/*.d.ts` with TypeScript 3.7, 4.2, 5.0, 6 and the latest (downloaded with `npx`).
+- `npm run test:compat` builds, then checks the package like a real install (`compat/`, linked as `@ashetm/types`) with TypeScript 3.7, 4.0, 4.1, 4.4, 5.0, 6 and the latest (downloaded with `npx`).
+- `src/legacy.ts` holds the TypeScript 3.7 types: TypeScript < 4.1 reads only this file. Types that need TypeScript 4.1+ are exported from `src/index.ts` only.
 
 ## License
 

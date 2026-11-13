@@ -1,7 +1,7 @@
 {
   "name": "@ashetm/types",
-  "version": "1.1.0",
-  "description": "Small, dependency-free TypeScript utility types (Nullable, NonEmptyArray, DeepPartial, DeepReadonly, Brand, Prettify, RequireAtLeastOne, JsonValue, ...). Types only: adds nothing to your bundle.",
+  "version": "1.2.0",
+  "description": "Small, dependency-free TypeScript utility types (Nullable, NonEmptyArray, DeepPartial, Brand, Prettify, JsonValue, Paths, CamelCase, ...). Types only: adds nothing to your bundle.",
   "contributors": [
     {
       "email": "contact@ashetm.com",
@@ -17,19 +17,25 @@
   "keywords": [
     "angular",
     "branded-types",
+    "camel-case",
     "deep-partial",
     "deep-readonly",
     "deep-required",
+    "dot-path",
     "json",
+    "kebab-case",
     "maybe",
     "mutable",
     "nominal-types",
     "non-empty-array",
     "nullable",
     "partial-by",
+    "paths",
     "prettify",
     "require-at-least-one",
     "require-exactly-one",
+    "snake-case",
+    "template-literal-types",
     "ts",
     "type-utilities",
     "types",
@@ -56,6 +62,13 @@
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "<4.1": {
+      "*": [
+        "dist/legacy.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
