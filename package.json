@@ -59,6 +59,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "test": "tsc -p tsconfig.spec.json",
     "typecheck": "tsc -p tsconfig.json",
+    "test:compat": "npm run build && sh compat/run.sh",
     "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "peerDependencies": {
