@@ -1,6 +1,6 @@
 {
   "name": "@ashetm/types",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Small, dependency-free TypeScript utility types (Nullable, NonEmptyArray, DeepPartial, Brand, Prettify, LiteralUnion, Merge, JsonValue, Paths, CamelCase, Tuple, ...). Types only: adds nothing to your bundle.",
   "contributors": [
     {
