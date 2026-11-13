@@ -30,6 +30,7 @@
     "typescript",
     "utility-types"
   ],
+  "license": "MIT",
   "private": false,
   "repository": {
     "type": "git",

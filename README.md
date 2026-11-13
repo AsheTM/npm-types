@@ -114,3 +114,7 @@ npm run test:compat
 
 - `npm test` type-checks the type tests (`src/*.spec-d.ts`): what must compile, and `// @ts-expect-error` for what must not. Nothing runs.
 - `npm run test:compat` builds, then checks `dist/*.d.ts` with TypeScript 3.7, 4.2, 5.0, 6 and the latest (downloaded with `npx`).
+
+## License
+
+[MIT](LICENSE) © DAWOUD Haitham

@@ -14,3 +14,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Deep types: `DeepPartial<T>`, `DeepReadonly<T>` (arrays, tuples, `Map`, `Set`; built-in objects kept as they are) ([#5](https://github.com/AsheTM/npm-types/issues/5)).
 - Branded types: `Brand<T, Name>` ([#4](https://github.com/AsheTM/npm-types/issues/4)).
 - Types only, ESM, `"sideEffects": false`, no runtime dependencies; TypeScript 3.7 or later (optional peer dependency) ([#2](https://github.com/AsheTM/npm-types/issues/2)).
+- MIT license ([#10](https://github.com/AsheTM/npm-types/issues/10)).
