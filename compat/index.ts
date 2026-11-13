@@ -7,18 +7,24 @@ import {
   DeepMutable,
   DeepReadonly,
   DeepRequired,
+  Entries,
   JsonValue,
   KeysOfType,
+  LiteralUnion,
   Maybe,
+  Merge,
   Mutable,
   NonEmptyArray,
   Nullable,
+  OptionalKeys,
   PartialBy,
   Prettify,
   RequireAtLeastOne,
   RequiredBy,
+  RequiredKeys,
   RequireExactlyOne,
   SplitKeys,
+  StrictOmit,
   UnionToIntersection,
   ValueOf,
 } from '@ashetm/types';
@@ -83,4 +89,13 @@ export const checks: [
   // UnionToIntersection, SplitKeys
   Equals<UnionToIntersection<{ a: 1 } | { b: 2 }>, { a: 1 } & { b: 2 }>,
   Equals<SplitKeys<{ a: 1; b?: 2 }>, { a: 1 } | { b?: 2 }>,
-] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+  // LiteralUnion, Merge, StrictOmit
+  Assignable<'xl', LiteralUnion<'sm' | 'md'>>,
+  Equals<Assignable<1, LiteralUnion<'sm' | 'md'>>, false>,
+  Equals<Merge<{ a: 1; b: 2 }, { b: 'x' }>, { a: 1; b: 'x' }>,
+  Equals<StrictOmit<User, 'id'>, { name: string; nickname?: string }>,
+  // OptionalKeys, RequiredKeys, Entries
+  Equals<OptionalKeys<User>, 'nickname'>,
+  Equals<RequiredKeys<User>, 'id' | 'name'>,
+  Equals<Entries<{ a: 1; b: 'x' }>, (['a', 1] | ['b', 'x'])[]>,
+] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];

@@ -1,4 +1,19 @@
-import type { KeysOfType, Mutable, PartialBy, Prettify, RequireAtLeastOne, RequiredBy, RequireExactlyOne, SplitKeys, ValueOf } from './index.ts';
+import type {
+  Entries,
+  KeysOfType,
+  Merge,
+  Mutable,
+  OptionalKeys,
+  PartialBy,
+  Prettify,
+  RequireAtLeastOne,
+  RequiredBy,
+  RequiredKeys,
+  RequireExactlyOne,
+  SplitKeys,
+  StrictOmit,
+  ValueOf,
+} from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface User {
@@ -209,4 +224,52 @@ interface Contact {
   // WHEN / THEN
   assertTrue<Equals<SplitKeys<Intersection>, { a: 1 } | { b: 2 }>>();
   assertTrue<Equals<SplitKeys<{}>, never>>();
+}
+
+// Merge: should add the properties of B, B winning on shared keys
+{
+  // GIVEN
+  type Base = { readonly id: number; name: string; tags?: string[] };
+  type Patch = { id: string; active: boolean };
+
+  // WHEN
+  type Row = Merge<Base, Patch>;
+
+  // THEN
+  assertTrue<Equals<Row, { name: string; tags?: string[]; id: string; active: boolean }>>();
+  assertTrue<Equals<Merge<Base, {}>, Base>>();
+}
+
+// StrictOmit: should omit keys of T and reject unknown keys
+{
+  // GIVEN / WHEN / THEN
+  assertTrue<Equals<StrictOmit<User, 'greet' | 'age'>, { readonly id: number; name: string; nickname?: string }>>();
+  // @ts-expect-error: `idd` is not a key of User
+  type Typo = StrictOmit<User, 'idd'>;
+}
+
+// OptionalKeys / RequiredKeys: should split the keys on `?`
+{
+  // GIVEN / WHEN / THEN
+  assertTrue<Equals<OptionalKeys<User>, 'nickname'>>();
+  assertTrue<Equals<RequiredKeys<User>, 'id' | 'name' | 'age' | 'greet'>>();
+  assertTrue<Equals<OptionalKeys<{ a: string | undefined }>, never>>();
+  assertTrue<Equals<RequiredKeys<{ a: string | undefined }>, 'a'>>();
+  assertTrue<Equals<OptionalKeys<{}>, never>>();
+}
+
+// Entries: should give the [key, value] pairs of string keys
+{
+  // GIVEN
+  const tag = Symbol('tag');
+  type Item = { id: number; label?: string; 0: boolean; [tag]: true };
+
+  // WHEN
+  type ItemEntries = Entries<Item>;
+
+  // THEN
+  assertTrue<Equals<ItemEntries, (['id', number] | ['label', string | undefined])[]>>();
+  accept<ItemEntries>([['id', 1], ['label', 'a']]);
+  // @ts-expect-error: wrong value type for `id`
+  accept<ItemEntries>([['id', 'a']]);
 }
