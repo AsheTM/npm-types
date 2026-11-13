@@ -15,7 +15,7 @@ npm install @ashetm/types
 ## API
 
 ```ts
-import type { ArrayItem, Brand, DeepPartial, DeepReadonly, KeysOfType, Maybe, Mutable, NonEmptyArray, Nullable, ValueOf } from '@ashetm/types';
+import type { DeepPartial, NonEmptyArray, Nullable, Prettify /* , ... */ } from '@ashetm/types';
 ```
 
 On TypeScript 3.7, use `import { ... }` (`import type` needs TypeScript 3.8).
@@ -48,6 +48,12 @@ type Role = ArrayItem<readonly ['admin', 'user']>; // 'admin' | 'user'
 | `ValueOf<T>`       | the union of the value types of `T`.                                                     |
 | `KeysOfType<T, V>` | the keys of `T` whose value is assignable to `V` (`undefined` is ignored).               |
 | `Mutable<T>`       | `T` without `readonly` on its properties (one level, arrays and tuples too).             |
+| `Prettify<T>`      | `T` with its intersections flattened, so hovers are readable (`readonly` and `?` kept).  |
+| `PartialBy<T, K>`  | `T` with only the keys `K` optional.                                                     |
+| `RequiredBy<T, K>` | `T` with only the keys `K` required.                                                     |
+| `RequireAtLeastOne<T, K>` | at least one of the keys `K` (all keys by default) must be set.                   |
+| `RequireExactlyOne<T, K>` | exactly one of the keys `K` (all keys by default) must be set, the others are not allowed. |
+| `SplitKeys<T>`     | a union with one object type per key of `T` (`readonly` and `?` kept).                   |
 
 ```ts
 const Status = { Active: 'active', Archived: 'archived' } as const;
@@ -59,6 +65,29 @@ interface User {
   nickname?: string;
 }
 type TextKeys = KeysOfType<User, string>; // 'name' | 'nickname'
+type NewUser = PartialBy<User, 'id'>; // { name: string; nickname?: string; id?: number }
+
+interface Contact {
+  name: string;
+  email?: string;
+  phone?: string;
+}
+type Reachable = RequireAtLeastOne<Contact, 'email' | 'phone'>;
+const contact: Reachable = { name: 'A' }; // error: email or phone is needed
+
+type Change = SplitKeys<{ name: string; age?: number }>; // { name: string } | { age?: number }
+```
+
+TypeScript can't split an intersection back into its members, so there is no `IntersectionToUnion`: `SplitKeys<A & B>` gives `A | B` only when `A` and `B` have one key each.
+
+### Unions
+
+| Type                     | Is                                              |
+|--------------------------|-------------------------------------------------|
+| `UnionToIntersection<U>` | the intersection of all the members of `U`.     |
+
+```ts
+type Both = UnionToIntersection<{ id: number } | { name: string }>; // { id: number } & { name: string }
 ```
 
 ### Deep types
@@ -67,11 +96,13 @@ type TextKeys = KeysOfType<User, string>; // 'name' | 'nickname'
 |-------------------|--------------------------------------------------------|
 | `DeepPartial<T>`  | `T` with every property optional, at every level.      |
 | `DeepReadonly<T>` | `T` with every property `readonly`, at every level.    |
+| `DeepRequired<T>` | `T` with every property required, at every level.      |
+| `DeepMutable<T>`  | `T` without `readonly`, at every level.                |
 
-Both of them:
+All of them:
 
-- go into arrays and tuples (tuples keep their length; `DeepReadonly` makes them readonly),
-- go into `Map` and `Set` values (`Map` keys are kept; `DeepReadonly` turns them into `ReadonlyMap` and `ReadonlySet`),
+- go into arrays and tuples (tuples keep their length; `DeepReadonly` / `DeepMutable` make them readonly / mutable; `DeepRequired` makes optional tuple items required),
+- go into `Map` and `Set` values (`Map` keys are kept; `DeepReadonly` gives `ReadonlyMap` / `ReadonlySet`, `DeepMutable` gives `Map` / `Set`),
 - keep primitives, functions, `Date`, `RegExp`, `Error`, `Promise`, `WeakMap` and `WeakSet` as they are.
 
 ```ts
@@ -86,6 +117,24 @@ const settings: DeepReadonly<Settings> = { theme: { color: 'red', dark: false },
 settings.theme.color = 'blue'; // error
 settings.tags.push('a'); // error
 ```
+
+`DeepRequired` removes `?` with the `undefined` that came with it; an explicit `| undefined` is kept.
+
+### JSON
+
+| Type            | Is                                                   |
+|-----------------|------------------------------------------------------|
+| `JsonPrimitive` | `string \| number \| boolean \| null`               |
+| `JsonValue`     | any JSON value: what `JSON.parse` can return.        |
+| `JsonObject`    | `{ [key: string]: JsonValue }`                       |
+| `JsonArray`     | `JsonValue[]`                                        |
+
+```ts
+const payload: JsonValue = { id: 1, tags: ['a'], meta: null };
+const invalid: JsonValue = { at: new Date() }; // error
+```
+
+An `interface` has no index signature, so a value typed with one is not assignable to `JsonObject`: use a `type` instead.
 
 ### Branded types
 

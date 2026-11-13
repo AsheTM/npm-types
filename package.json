@@ -1,7 +1,7 @@
 {
   "name": "@ashetm/types",
   "version": "1.0.0",
-  "description": "Small, dependency-free TypeScript utility types (Nullable, Maybe, NonEmptyArray, DeepPartial, DeepReadonly, Brand, ...). Types only: adds nothing to your bundle.",
+  "description": "Small, dependency-free TypeScript utility types (Nullable, NonEmptyArray, DeepPartial, DeepReadonly, Brand, Prettify, RequireAtLeastOne, JsonValue, ...). Types only: adds nothing to your bundle.",
   "contributors": [
     {
       "email": "contact@ashetm.com",
@@ -19,15 +19,22 @@
     "branded-types",
     "deep-partial",
     "deep-readonly",
+    "deep-required",
+    "json",
     "maybe",
     "mutable",
     "nominal-types",
     "non-empty-array",
     "nullable",
+    "partial-by",
+    "prettify",
+    "require-at-least-one",
+    "require-exactly-one",
     "ts",
     "type-utilities",
     "types",
     "typescript",
+    "union-to-intersection",
     "utility-types"
   ],
   "license": "MIT",
