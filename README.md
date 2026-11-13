@@ -1,5 +1,12 @@
 # @ashetm/types
 
+[![npm version](https://img.shields.io/npm/v/@ashetm/types)](https://www.npmjs.com/package/@ashetm/types)
+[![npm downloads](https://img.shields.io/npm/dm/@ashetm/types)](https://www.npmjs.com/package/@ashetm/types)
+[![CI](https://github.com/AsheTM/npm-types/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AsheTM/npm-types/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-%3E%3D3.7-3178c6?logo=typescript&logoColor=white)](#typescript-support)
+[![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
+[![license](https://img.shields.io/npm/l/@ashetm/types)](LICENSE)
+
 ``@ashetm/types`` is a small, dependency-free library of TypeScript utility types: nullability, arrays, objects, deep partial / readonly, JSON, dot paths, string cases and branded types.
 
 It is **types only**: it adds nothing to your bundle. It works with any project (Angular, React, Node, ...) on **TypeScript 3.7 or later**.
