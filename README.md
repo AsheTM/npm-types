@@ -7,7 +7,7 @@
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
 [![license](https://img.shields.io/npm/l/@ashetm/types)](LICENSE)
 
-``@ashetm/types`` is a small, dependency-free library of TypeScript utility types: nullability, arrays, objects, deep partial / readonly, JSON, dot paths, string cases and branded types.
+``@ashetm/types`` is a small, dependency-free library of TypeScript utility types: nullability, arrays and tuples, objects, unions, deep partial / readonly, JSON, dot paths, string cases and branded types.
 
 It is **types only**: it adds nothing to your bundle. It works with any project (Angular, React, Node, ...) on **TypeScript 3.7 or later**.
 
@@ -15,8 +15,8 @@ It is **types only**: it adds nothing to your bundle. It works with any project 
 
 | TypeScript | Angular     | Types                                                                                     |
 |------------|-------------|-------------------------------------------------------------------------------------------|
-| 3.7 – 4.0  | 9 – 11.0    | all except [Paths](#paths) and [String cases](#string-cases)                              |
-| 4.1 – 4.4  | 11.1 – 13.0 | all; string cases up to about 40 characters, `Paths` of self-referencing types up to 9 segments |
+| 3.7 – 4.0  | 9 – 11.0    | all except `Tuple`, [Paths](#paths) and [String cases](#string-cases)                     |
+| 4.1 – 4.4  | 11.1 – 13.0 | all; string cases up to about 40 characters, `Paths` of self-referencing types up to 9 segments, `Tuple` up to 42 items |
 | 4.5+       | 13.1+       | all                                                                                       |
 
 Your TypeScript version picks the right types by itself (`typesVersions`): nothing to configure.
@@ -50,12 +50,14 @@ On TypeScript 3.7, use `import { ... }` (`import type` needs TypeScript 3.8).
 |--------------------|-------------------------------------------------------------------------|
 | `NonEmptyArray<T>` | an array with at least one item: `[T, ...T[]]`.                         |
 | `ArrayItem<T>`     | the item type of an array or a tuple (readonly too).                    |
+| `Tuple<T, N>`      | a tuple of `N` items of type `T` (TypeScript 4.1+, up to 998 items).    |
 
 ```ts
 const ids: NonEmptyArray<number> = [1, 2];
 const none: NonEmptyArray<number> = []; // error
 
 type Role = ArrayItem<readonly ['admin', 'user']>; // 'admin' | 'user'
+type Rgb = Tuple<number, 3>; // [number, number, number]
 ```
 
 ### Objects
@@ -71,6 +73,11 @@ type Role = ArrayItem<readonly ['admin', 'user']>; // 'admin' | 'user'
 | `RequireAtLeastOne<T, K>` | at least one of the keys `K` (all keys by default) must be set.                   |
 | `RequireExactlyOne<T, K>` | exactly one of the keys `K` (all keys by default) must be set, the others are not allowed. |
 | `SplitKeys<T>`     | a union with one object type per key of `T` (`readonly` and `?` kept).                   |
+| `Merge<A, B>`      | `A` with the properties of `B` on top: `B` wins on shared keys.                          |
+| `StrictOmit<T, K>` | `Omit` that only accepts keys of `T`, so a typo is an error.                             |
+| `OptionalKeys<T>`  | the keys of `T` marked `?`.                                                              |
+| `RequiredKeys<T>`  | the keys of `T` not marked `?`.                                                          |
+| `Entries<T>`       | the `[key, value]` pairs of `T` (string keys), to type `Object.entries`.                 |
 
 ```ts
 const Status = { Active: 'active', Archived: 'archived' } as const;
@@ -93,6 +100,13 @@ type Reachable = RequireAtLeastOne<Contact, 'email' | 'phone'>;
 const contact: Reachable = { name: 'A' }; // error: email or phone is needed
 
 type Change = SplitKeys<{ name: string; age?: number }>; // { name: string } | { age?: number }
+
+type Row = Merge<User, { id: string }>; // { name: string; nickname?: string; id: string }
+type Draft = StrictOmit<User, 'idd'>; // error: 'idd' is not a key of User
+type Optional = OptionalKeys<User>; // 'nickname'
+
+declare const user: User;
+const entries = Object.entries(user) as Entries<User>; // (['id', number] | ['name', string] | ['nickname', string | undefined])[]
 ```
 
 TypeScript can't split an intersection back into its members, so there is no `IntersectionToUnion`: `SplitKeys<A & B>` gives `A | B` only when `A` and `B` have one key each.
@@ -102,9 +116,13 @@ TypeScript can't split an intersection back into its members, so there is no `In
 | Type                     | Is                                              |
 |--------------------------|-------------------------------------------------|
 | `UnionToIntersection<U>` | the intersection of all the members of `U`.     |
+| `LiteralUnion<T, Base>`  | `T` or any other `Base` (`string` by default), keeping autocomplete for `T`. |
 
 ```ts
 type Both = UnionToIntersection<{ id: number } | { name: string }>; // { id: number } & { name: string }
+
+type Size = LiteralUnion<'sm' | 'md' | 'lg'>;
+const size: Size = 'xl'; // allowed, and the editor still suggests 'sm', 'md' and 'lg'
 ```
 
 ### Deep types
