@@ -1,0 +1,22 @@
+# compiled output
+/dist
+
+# dependencies
+/node_modules
+
+# misc
+npm-debug.log
+*.tgz
+
+# IDEs and editors
+/.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Others
+*.git-credentials
