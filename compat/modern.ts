@@ -1,6 +1,6 @@
 // The TypeScript 4.1+ types (`dist/index.d.ts`), checked at the limits of TypeScript 4.1–4.4:
-// strings of 40 characters, `Paths` of 9 segments on a self-referencing type.
-import type { CamelCase, KebabCase, Paths, PathValue, SnakeCase } from '@ashetm/types';
+// strings of 40 characters, `Paths` of 9 segments on a self-referencing type, `Tuple` of 42 items.
+import type { CamelCase, KebabCase, Paths, PathValue, SnakeCase, Tuple } from '@ashetm/types';
 
 type Equals<A, B> = (<X>() => X extends A ? 1 : 2) extends <X>() => X extends B ? 1 : 2 ? true : false;
 
@@ -22,7 +22,9 @@ export const checks: [
   Equals<KebabCase<'userID'>, 'user-id'>,
   Equals<SnakeCase<'USER_ID'>, 'user_id'>,
   Equals<CamelCase<'user-name id'>, 'userNameId'>,
-] = [true, true, true, true, true, true];
+  Equals<Tuple<number, 3>, [number, number, number]>,
+  Equals<Tuple<number, 42>['length'], 42>,
+] = [true, true, true, true, true, true, true, true];
 
 export const deepPath: Paths<Tree> = 'children.0.children.0.children.0.children.0.value';
 // @ts-expect-error: more than 9 segments
