@@ -46,3 +46,47 @@ export type KeysOfType<T, V> = {
 export type Mutable<T> = {
   -readonly [K in keyof T]: T[K];
 };
+
+/**
+ * `T` with its intersections flattened into one object type, so hovers are readable.
+ * `readonly` and `?` are kept.
+ *
+ * @example
+ * ```ts
+ * type User = Prettify<{ id: number } & { name?: string }>; // { id: number; name?: string }
+ * ```
+ */
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+};
+
+/**
+ * `T` with only the keys `K` optional.
+ *
+ * @example
+ * ```ts
+ * interface User {
+ *   id: number;
+ *   name: string;
+ *   email: string;
+ * }
+ *
+ * type NewUser = PartialBy<User, 'id'>; // { name: string; email: string; id?: number }
+ * ```
+ */
+export type PartialBy<T, K extends keyof T> = Prettify<Omit<T, K> & Partial<Pick<T, K>>>;
+
+/**
+ * `T` with only the keys `K` required.
+ *
+ * @example
+ * ```ts
+ * interface Options {
+ *   url?: string;
+ *   timeout?: number;
+ * }
+ *
+ * type UrlOptions = RequiredBy<Options, 'url'>; // { timeout?: number; url: string }
+ * ```
+ */
+export type RequiredBy<T, K extends keyof T> = Prettify<Omit<T, K> & Required<Pick<T, K>>>;

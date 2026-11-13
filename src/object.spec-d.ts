@@ -1,4 +1,4 @@
-import type { KeysOfType, Mutable, ValueOf } from './index.ts';
+import type { KeysOfType, Mutable, PartialBy, Prettify, RequiredBy, ValueOf } from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface User {
@@ -93,4 +93,52 @@ interface User {
 
   // THEN
   assertTrue<Equals<MutableBox, { inner: { readonly value: number } }>>();
+}
+
+// Prettify: should flatten an intersection and keep `readonly` and `?`
+{
+  // GIVEN
+  type Intersection = { readonly id: number } & { name?: string };
+
+  // WHEN
+  type Flat = Prettify<Intersection>;
+
+  // THEN
+  assertTrue<Equals<Flat, { readonly id: number; name?: string }>>();
+}
+
+// PartialBy: should make only the given keys optional
+{
+  // GIVEN
+  interface Account {
+    id: number;
+    name: string;
+    readonly email: string;
+  }
+
+  // WHEN
+  type NewAccount = PartialBy<Account, 'id' | 'email'>;
+
+  // THEN
+  assertTrue<Equals<NewAccount, { name: string; id?: number; readonly email?: string }>>();
+  accept<NewAccount>({ name: 'A' });
+  // @ts-expect-error: `name` is still required
+  accept<NewAccount>({ id: 1 });
+}
+
+// RequiredBy: should make only the given keys required
+{
+  // GIVEN
+  interface Options {
+    url?: string;
+    timeout?: number;
+  }
+
+  // WHEN
+  type UrlOptions = RequiredBy<Options, 'url'>;
+
+  // THEN
+  assertTrue<Equals<UrlOptions, { timeout?: number; url: string }>>();
+  // @ts-expect-error: `url` is required
+  accept<UrlOptions>({ timeout: 1 });
 }
