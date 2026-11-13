@@ -1,4 +1,4 @@
-import type { DeepPartial, DeepReadonly } from './index.ts';
+import type { DeepMutable, DeepPartial, DeepReadonly, DeepRequired } from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface Settings {
@@ -123,4 +123,79 @@ interface Settings {
   assertTrue<Equals<DeepReadonly<WeakSet<{ id: number }>>, WeakSet<{ id: number }>>>();
   assertTrue<Equals<DeepReadonly<(id: number) => string>, (id: number) => string>>();
   assertTrue<Equals<DeepReadonly<Settings>['createdAt'], Date>>();
+}
+
+// DeepRequired: should make every property required, at every level
+{
+  // GIVEN
+  interface Options {
+    retry?: { count?: number; delay?: number };
+    name?: string;
+    label: string | undefined;
+  }
+
+  // WHEN
+  type Full = DeepRequired<Options>;
+
+  // THEN
+  assertTrue<Equals<Full, { retry: { count: number; delay: number }; name: string; label: string | undefined }>>();
+  // @ts-expect-error: a nested property is required
+  accept<Full>({ retry: { count: 1 }, name: 'a', label: undefined });
+}
+
+// DeepRequired: should keep array items, and make optional tuple items required
+{
+  // GIVEN / WHEN
+  type Items = DeepRequired<({ size?: number } | undefined)[]>;
+  type Pair = DeepRequired<[string, { size?: number }?]>;
+
+  // THEN
+  assertTrue<Equals<Items, ({ size: number } | undefined)[]>>();
+  assertTrue<Equals<Pair, [string, { size: number }]>>();
+}
+
+// DeepRequired: should go into `Map` and `Set` values, and keep built-in objects as they are
+{
+  // GIVEN / WHEN / THEN
+  assertTrue<Equals<DeepRequired<Map<string, { name?: string }>>, Map<string, { name: string }>>>();
+  assertTrue<Equals<DeepRequired<ReadonlySet<{ id?: number }>>, ReadonlySet<{ id: number }>>>();
+  assertTrue<Equals<DeepRequired<Date>, Date>>();
+  assertTrue<Equals<DeepRequired<(id?: number) => string>, (id?: number) => string>>();
+}
+
+// DeepMutable: should remove `readonly` at every level
+{
+  // GIVEN
+  const defaults = { theme: { color: 'red' }, tags: ['a'] } as const;
+
+  // WHEN
+  type Settings = DeepMutable<typeof defaults>;
+
+  // THEN
+  assertTrue<Equals<Settings, { theme: { color: 'red' }; tags: ['a'] }>>();
+}
+
+// DeepMutable: should turn readonly arrays, tuples, `ReadonlyMap` and `ReadonlySet` into mutable ones
+{
+  // GIVEN / WHEN
+  type Items = DeepMutable<readonly { readonly size: number }[]>;
+  type Pair = DeepMutable<readonly [string, { readonly size: number }]>;
+  type Users = DeepMutable<ReadonlyMap<string, { readonly name: string }>>;
+  type Roles = DeepMutable<ReadonlySet<{ readonly id: number }>>;
+
+  // THEN
+  assertTrue<Equals<Items, { size: number }[]>>();
+  assertTrue<Equals<Pair, [string, { size: number }]>>();
+  assertTrue<Equals<Users, Map<string, { name: string }>>>();
+  assertTrue<Equals<Roles, Set<{ id: number }>>>();
+}
+
+// DeepMutable: should be the opposite of DeepReadonly
+{
+  // GIVEN
+  type Settings = { theme: { color: string }; tags: string[]; users: Map<string, { name: string }> };
+
+  // WHEN / THEN
+  assertTrue<Equals<DeepMutable<DeepReadonly<Settings>>, Settings>>();
+  assertTrue<Equals<DeepMutable<Date>, Date>>();
 }

@@ -1,4 +1,4 @@
-// Types kept as they are by `DeepPartial` and `DeepReadonly`
+// Types kept as they are by the deep types
 type Builtin =
   | string
   | number
@@ -73,3 +73,60 @@ export type DeepReadonly<T> = T extends ReadonlyMap<infer K, infer V>
     : T extends Builtin
       ? T
       : { readonly [K in keyof T]: DeepReadonly<T[K]> };
+
+/**
+ * `T` with every property required, at every level: `?` is removed, with the `undefined` that came
+ * with it (an explicit `| undefined` is kept).
+ *
+ * - Arrays: items are deep required. Tuples: optional items become required.
+ * - `Map` and `Set` (readonly too): values are deep required, `Map` keys are kept.
+ * - Primitives, functions, `Date`, `RegExp`, `Error`, `Promise`, `WeakMap` and `WeakSet` are kept as they are.
+ *
+ * @example
+ * ```ts
+ * interface Options {
+ *   retry?: { count?: number; delay?: number };
+ * }
+ *
+ * const defaults: DeepRequired<Options> = { retry: { count: 3, delay: 100 } };
+ * ```
+ */
+export type DeepRequired<T> = T extends Map<infer K, infer V>
+  ? Map<K, DeepRequired<V>>
+  : T extends ReadonlyMap<infer K, infer V>
+    ? ReadonlyMap<K, DeepRequired<V>>
+    : T extends Set<infer U>
+      ? Set<DeepRequired<U>>
+      : T extends ReadonlySet<infer U>
+        ? ReadonlySet<DeepRequired<U>>
+        : T extends Builtin
+          ? T
+          : T extends ReadonlyArray<unknown>
+            ? number extends T['length']
+              ? { [K in keyof T]: DeepRequired<T[K]> } // `-?` on an array would also remove `undefined` from its items
+              : { [K in keyof T]-?: DeepRequired<T[K]> }
+            : { [K in keyof T]-?: DeepRequired<T[K]> };
+
+/**
+ * `T` without `readonly`, at every level.
+ *
+ * - Readonly arrays and tuples become mutable, with deep mutable items.
+ * - `ReadonlyMap` and `ReadonlySet` become `Map` and `Set`, with deep mutable values (`Map` keys are kept).
+ * - Primitives, functions, `Date`, `RegExp`, `Error`, `Promise`, `WeakMap` and `WeakSet` are kept as they are.
+ *
+ * @example
+ * ```ts
+ * const defaults = { theme: { color: 'red' }, tags: ['a'] } as const;
+ *
+ * const settings: DeepMutable<typeof defaults> = { theme: { color: 'red' }, tags: ['a'] };
+ * settings.theme.color = 'red'; // allowed
+ * settings.tags.push('a'); // allowed
+ * ```
+ */
+export type DeepMutable<T> = T extends ReadonlyMap<infer K, infer V>
+  ? Map<K, DeepMutable<V>>
+  : T extends ReadonlySet<infer U>
+    ? Set<DeepMutable<U>>
+    : T extends Builtin
+      ? T
+      : { -readonly [K in keyof T]: DeepMutable<T[K]> };
