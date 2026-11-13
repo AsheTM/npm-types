@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-13
+
+### Added
+
+- `Prettify<T>`, `PartialBy<T, K>`, `RequiredBy<T, K>` ([#12](https://github.com/AsheTM/npm-types/issues/12)).
+- `RequireAtLeastOne<T, K>`, `RequireExactlyOne<T, K>` ([#13](https://github.com/AsheTM/npm-types/issues/13)).
+- `DeepRequired<T>`, `DeepMutable<T>` ([#14](https://github.com/AsheTM/npm-types/issues/14)).
+- JSON types: `JsonPrimitive`, `JsonValue`, `JsonObject`, `JsonArray` ([#15](https://github.com/AsheTM/npm-types/issues/15)).
+- `UnionToIntersection<U>`, `SplitKeys<T>` ([#16](https://github.com/AsheTM/npm-types/issues/16)).
+
 ## [1.0.0] - 2026-11-13
 
 ### Added

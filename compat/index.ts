@@ -4,12 +4,22 @@ import {
   ArrayItem,
   Brand,
   DeepPartial,
+  DeepMutable,
   DeepReadonly,
+  DeepRequired,
+  JsonValue,
   KeysOfType,
   Maybe,
   Mutable,
   NonEmptyArray,
   Nullable,
+  PartialBy,
+  Prettify,
+  RequireAtLeastOne,
+  RequiredBy,
+  RequireExactlyOne,
+  SplitKeys,
+  UnionToIntersection,
   ValueOf,
 } from '../dist/index.js';
 
@@ -53,4 +63,24 @@ export const checks: [
   Equals<DeepReadonly<Map<string, { name: string }>>, ReadonlyMap<string, { readonly name: string }>>,
   Equals<DeepReadonly<Set<{ id: number }>>, ReadonlySet<{ readonly id: number }>>,
   Equals<DeepReadonly<() => void>, () => void>,
-] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+  // DeepRequired, DeepMutable
+  Equals<DeepRequired<{ a?: { b?: number[] } }>, { a: { b: number[] } }>,
+  Equals<DeepRequired<[string, number?]>, [string, number]>,
+  Equals<DeepMutable<{ readonly a: readonly { readonly b: number }[] }>, { a: { b: number }[] }>,
+  Equals<DeepMutable<ReadonlyMap<string, { readonly name: string }>>, Map<string, { name: string }>>,
+  // Prettify, PartialBy, RequiredBy
+  Equals<Prettify<{ a: 1 } & { b?: 2 }>, { a: 1; b?: 2 }>,
+  Equals<PartialBy<User, 'id'>, { name: string; nickname?: string; readonly id?: number }>,
+  Equals<RequiredBy<User, 'nickname'>, { readonly id: number; name: string; nickname: string }>,
+  // RequireAtLeastOne, RequireExactlyOne
+  Equals<RequireAtLeastOne<{ a?: 1; b?: 2 }>, { a: 1; b?: 2 } | { b: 2; a?: 1 }>,
+  Equals<Assignable<{}, RequireAtLeastOne<{ a?: 1; b?: 2 }>>, false>,
+  Equals<Assignable<{ a: 1; b: 2 }, RequireExactlyOne<{ a?: 1; b?: 2 }>>, false>,
+  Assignable<{ a: 1 }, RequireExactlyOne<{ a?: 1; b?: 2 }>>,
+  // JsonValue
+  Assignable<{ a: (number | null)[]; b: { c: boolean } }, JsonValue>,
+  Equals<Assignable<{ a: Date }, JsonValue>, false>,
+  // UnionToIntersection, SplitKeys
+  Equals<UnionToIntersection<{ a: 1 } | { b: 2 }>, { a: 1 } & { b: 2 }>,
+  Equals<SplitKeys<{ a: 1; b?: 2 }>, { a: 1 } | { b?: 2 }>,
+] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
