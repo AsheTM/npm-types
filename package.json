@@ -1,0 +1,77 @@
+{
+  "name": "@ashetm/types",
+  "version": "1.0.0",
+  "description": "Small, dependency-free TypeScript utility types (Nullable, Maybe, NonEmptyArray, DeepPartial, DeepReadonly, Brand, ...). Types only: adds nothing to your bundle.",
+  "contributors": [
+    {
+      "email": "contact@ashetm.com",
+      "name": "DAWOUD Haitham",
+      "url": "http://ashetm.com"
+    }
+  ],
+  "author": {
+    "email": "contact@ashetm.com",
+    "name": "DAWOUD Haitham",
+    "url": "http://ashetm.com"
+  },
+  "keywords": [
+    "angular",
+    "branded-types",
+    "deep-partial",
+    "deep-readonly",
+    "maybe",
+    "mutable",
+    "nominal-types",
+    "non-empty-array",
+    "nullable",
+    "ts",
+    "type-utilities",
+    "types",
+    "typescript",
+    "utility-types"
+  ],
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsheTM/npm-types.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AsheTM/npm-types/issues"
+  },
+  "homepage": "https://github.com/AsheTM/npm-types#readme",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "test": "tsc -p tsconfig.spec.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:compat": "npm run build && sh compat/run.sh",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "peerDependencies": {
+    "typescript": ">=3.7"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  }
+}
