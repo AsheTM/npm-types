@@ -1,4 +1,4 @@
-import type { KeysOfType, Mutable, PartialBy, Prettify, RequiredBy, ValueOf } from './index.ts';
+import type { KeysOfType, Mutable, PartialBy, Prettify, RequireAtLeastOne, RequiredBy, RequireExactlyOne, ValueOf } from './index.ts';
 import { accept, assertTrue, type Equals } from './testing/assert.ts';
 
 interface User {
@@ -141,4 +141,50 @@ interface User {
   assertTrue<Equals<UrlOptions, { timeout?: number; url: string }>>();
   // @ts-expect-error: `url` is required
   accept<UrlOptions>({ timeout: 1 });
+}
+
+interface Contact {
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
+// RequireAtLeastOne: should need at least one of the given keys
+{
+  // GIVEN
+  type Reachable = RequireAtLeastOne<Contact, 'email' | 'phone'>;
+
+  // WHEN / THEN
+  accept<Reachable>({ name: 'A', email: 'a@b.c' });
+  accept<Reachable>({ name: 'A', phone: '01' });
+  accept<Reachable>({ name: 'A', email: 'a@b.c', phone: '01' });
+  // @ts-expect-error: none of the keys is set
+  accept<Reachable>({ name: 'A' });
+  // @ts-expect-error: keys outside the list are kept as they are
+  accept<Reachable>({ email: 'a@b.c' });
+}
+
+// RequireAtLeastOne: should use every key by default
+{
+  // GIVEN
+  type Filter = RequireAtLeastOne<{ id?: number; name?: string }>;
+
+  // WHEN / THEN
+  assertTrue<Equals<Filter, { id: number; name?: string } | { name: string; id?: number }>>();
+  // @ts-expect-error: an empty object is not allowed
+  accept<Filter>({});
+}
+
+// RequireExactlyOne: should need exactly one of the given keys
+{
+  // GIVEN
+  type Single = RequireExactlyOne<Contact, 'email' | 'phone'>;
+
+  // WHEN / THEN
+  accept<Single>({ name: 'A', email: 'a@b.c' });
+  accept<Single>({ name: 'A', phone: '01' });
+  // @ts-expect-error: two keys are set
+  accept<Single>({ name: 'A', email: 'a@b.c', phone: '01' });
+  // @ts-expect-error: none of the keys is set
+  accept<Single>({ name: 'A' });
 }

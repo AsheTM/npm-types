@@ -90,3 +90,49 @@ export type PartialBy<T, K extends keyof T> = Prettify<Omit<T, K> & Partial<Pick
  * ```
  */
 export type RequiredBy<T, K extends keyof T> = Prettify<Omit<T, K> & Required<Pick<T, K>>>;
+
+/**
+ * `T` where at least one of the keys `K` (all keys by default) must be set.
+ * The other keys of `K` stay optional; keys outside `K` are kept as they are.
+ *
+ * @example
+ * ```ts
+ * interface Contact {
+ *   name: string;
+ *   email?: string;
+ *   phone?: string;
+ * }
+ *
+ * type ReachableContact = RequireAtLeastOne<Contact, 'email' | 'phone'>;
+ *
+ * const a: ReachableContact = { name: 'A', email: 'a@b.c' };
+ * const b: ReachableContact = { name: 'B', email: 'b@c.d', phone: '01' };
+ * const c: ReachableContact = { name: 'C' }; // error
+ * ```
+ */
+export type RequireAtLeastOne<T, K extends keyof T = keyof T> = {
+  [P in K]-?: Prettify<Omit<T, K> & Required<Pick<T, P>> & Partial<Pick<T, Exclude<K, P>>>>;
+}[K];
+
+/**
+ * `T` where exactly one of the keys `K` (all keys by default) must be set; the other keys of `K`
+ * are not allowed. Keys outside `K` are kept as they are.
+ *
+ * @example
+ * ```ts
+ * interface Payment {
+ *   amount: number;
+ *   card?: string;
+ *   iban?: string;
+ * }
+ *
+ * type SinglePayment = RequireExactlyOne<Payment, 'card' | 'iban'>;
+ *
+ * const a: SinglePayment = { amount: 1, card: '4242' };
+ * const b: SinglePayment = { amount: 1, card: '4242', iban: 'FR76' }; // error
+ * const c: SinglePayment = { amount: 1 }; // error
+ * ```
+ */
+export type RequireExactlyOne<T, K extends keyof T = keyof T> = {
+  [P in K]-?: Prettify<Omit<T, K> & Required<Pick<T, P>> & { [Q in Exclude<K, P>]?: never }>;
+}[K];
