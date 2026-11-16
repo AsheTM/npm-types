@@ -20,6 +20,7 @@ It is **types only**: it adds nothing to your bundle. It works with any project 
 | 4.5+       | 13.1+       | all                                                                                       |
 
 Your TypeScript version picks the right types by itself (`typesVersions`): nothing to configure.
+It works from ESM and CommonJS projects (`module: node16` / `nodenext` included), and from bundlers.
 
 ## Install
 
@@ -243,7 +244,8 @@ npm run test:compat
 ```
 
 - `npm test` type-checks the type tests (`src/*.spec-d.ts`): what must compile, and `// @ts-expect-error` for what must not. Nothing runs.
-- `npm run test:compat` builds, then checks the package like a real install (`compat/`, linked as `@ashetm/types`) with TypeScript 3.7, 4.0, 4.1, 4.4, 5.0, 6 and the latest (downloaded with `npx`).
+- `npm run test:compat` builds, then checks the package like a real install (`compat/`, linked as `@ashetm/types`) with TypeScript 3.7, 4.0, 4.1, 4.4, 5.0, 6 and the latest (downloaded with `npx`), and a CommonJS and an ESM consumer (`module: node16`) with TypeScript 4.7, 5.0, 5.7 and the latest.
+- `npm run build` also writes the CommonJS declarations (`dist/*.d.cts`, `scripts/build-cjs.mjs`) for the `require` condition of `exports`.
 - `src/legacy.ts` holds the TypeScript 3.7 types: TypeScript < 4.1 reads only this file. Types that need TypeScript 4.1+ are exported from `src/index.ts` only.
 
 ## License
